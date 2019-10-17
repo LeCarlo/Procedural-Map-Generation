@@ -60,12 +60,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\endlessTerrain.cs" />
-    <Compile Include="Assets\Scripts\mapDisplay.cs" />
-    <Compile Include="Assets\Scripts\mapGenerator.cs" />
+    <Compile Include="Assets\Scripts\Data\HeightMapSettings.cs" />
+    <Compile Include="Assets\Scripts\Data\meshSettings.cs" />
+    <Compile Include="Assets\Scripts\Data\textureData.cs" />
+    <Compile Include="Assets\Scripts\Data\updatableData.cs" />
+    <Compile Include="Assets\Scripts\falloffGenerator.cs" />
+    <Compile Include="Assets\Scripts\heightMapGenerator.cs" />
+    <Compile Include="Assets\Scripts\HideOnPlay.cs" />
+    <Compile Include="Assets\Scripts\MapPreview.cs" />
     <Compile Include="Assets\Scripts\meshGenerator.cs" />
     <Compile Include="Assets\Scripts\Noise.cs" />
+    <Compile Include="Assets\Scripts\PlayerMovement.cs" />
+    <Compile Include="Assets\Scripts\TerrainChunk.cs" />
+    <Compile Include="Assets\Scripts\TerrainGenerator.cs" />
     <Compile Include="Assets\Scripts\textureGenerator.cs" />
+    <Compile Include="Assets\Scripts\ThreadedDataRequester.cs" />
+    <None Include="Assets\Materials\TerrainShader.shader" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/s181332/Desktop/Procedural Map/Procedural-Map-Generation/Procedural Map Generation/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
