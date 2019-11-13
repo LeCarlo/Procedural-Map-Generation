@@ -3,98 +3,84 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class Noise
-{
-    public enum NormalizeMode
+{ 
+    public static float[,] GenerateNoiseMap(int p_mapWidth, int p_mapHeight, NoiseSettings p_settings, Vector2 p_sampleCentre)
     {
-        Local,      // Local min & max value
-        Global      // Estimate min & max value
-    }
-    public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, NoiseSettings settings, Vector2 sampleCentre)
-    {
-        float[,] noiseMap = new float[mapWidth, mapHeight];
+        // sets the noise Map to a float the size of the map width and height
+        float[,] noiseMap = new float[p_mapWidth, p_mapHeight];
 
-        System.Random prng = new System.Random(settings.seed);
+        // sets the random variable to the seed
+        System.Random prng = new System.Random(p_settings.seed);
 
-        Vector2[] octaveOffSets = new Vector2[settings.octaves];
+        // sets the octave offsets to the octaves of the noise settings
+        Vector2[] octaveOffSets = new Vector2[p_settings.octaves];
 
-        float MaxPosibleHeight = 0; // Maximum Height value
-        float amplitude = 1;
-        float frequency = 1;
+        float MaxPosibleHeight = 0; // Defaul maximum height
+        float amplitude = 1;        // Default amplitude
+        float frequency = 1;        // Default frequency
 
-        for (int i = 0; i < settings.octaves; i++)
+        // loops through the octaves and sets the offsets
+        for (int i = 0; i < p_settings.octaves; i++)
         {
-            float offSetX = prng.Next(-100000, 100000) + settings.offset.x + sampleCentre.x;
-            float offSetY = prng.Next(-100000, 100000) - settings.offset.y - sampleCentre.y;
+            // offset x is set by random value between -100000 and 100000 + the offset x of the noise settings + the x of sample centre
+            // offset y is the same except instead of + we set to -
+            float offSetX = prng.Next(-100000, 100000) + p_settings.offset.x + p_sampleCentre.x;
+            float offSetY = prng.Next(-100000, 100000) - p_settings.offset.y - p_sampleCentre.y;
 
+            // applies the above offsets
             octaveOffSets[i] = new Vector2(offSetX, offSetY);
 
+            // Sets the max possible height to the amplitude and multiplying the amplitude by the persistance
             MaxPosibleHeight += amplitude;
-            amplitude *= settings.persistance;
+            amplitude *= p_settings.persistance;
         }
+        
+        // sets the half width and height of the map
+        float halfWidth = p_mapWidth / 2f;
+        float halfHeight = p_mapHeight / 2f;
 
-        float maxLocalNoiseHeight = float.MinValue;
-        float minLocalNoiseHeight = float.MaxValue;
-
-        float halfWidth = mapWidth / 2f;
-        float halfHeight = mapHeight / 2f;
-
-        for (int y = 0; y < mapHeight; y++)
+        for (int y = 0; y < p_mapHeight; y++)
         {
-            for (int x = 0; x < mapWidth; x++)
+            for (int x = 0; x < p_mapWidth; x++)
             {
                 amplitude = 1;          // Resets the amplitude to 1
                 frequency = 1;          // Resets the frequency to 1
                 float noiseHeight = 0;
-                for (int i = 0; i < settings.octaves; i++)
+                for (int i = 0; i < p_settings.octaves; i++)
                 {
-                    float sampleX = (x - halfWidth + octaveOffSets[i].x) / settings.scale * frequency;
-                    float sampleY = (y - halfHeight + octaveOffSets[i].y) / settings.scale * frequency;
+                    // Sets the sample X and Y values for the perlin noise value
+                    float sampleX = (x - halfWidth + octaveOffSets[i].x) / p_settings.scale * frequency;
+                    float sampleY = (y - halfHeight + octaveOffSets[i].y) / p_settings.scale * frequency;
 
                     float perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
-                    noiseHeight += perlinValue * amplitude;
+                    noiseHeight += perlinValue * amplitude;     // Applies the perlin noise to the noiseHeight
 
-                    amplitude *= settings.persistance;
-                    frequency *= settings.lacunarity;
+                    // Sets the amplitude and frequency to lacunarity and persistance value
+                    amplitude *= p_settings.persistance;
+                    frequency *= p_settings.lacunarity;
                 }
-
-                if (noiseHeight > maxLocalNoiseHeight)
-                {
-                    maxLocalNoiseHeight = noiseHeight;
-                }
-                if (noiseHeight < minLocalNoiseHeight)
-                {
-                    minLocalNoiseHeight = noiseHeight;
-                }
-
+                
+                // Sets the noise map to the noise height
                 noiseMap[x, y] = noiseHeight;
-                if (settings.normalizeMode == NormalizeMode.Global)
-                {
-                    float normalizedHeight = (noiseMap[x, y] + 1) / (2f * MaxPosibleHeight / 1.75f);
-                    noiseMap[x, y] = Mathf.Clamp(normalizedHeight, 0, int.MaxValue);
-                }
+
+                // normalizes the noise map data
+                float normalizedHeight = (noiseMap[x, y] + 1) / (MaxPosibleHeight / 0.9f);
+                noiseMap[x, y] = Mathf.Clamp(normalizedHeight, 0, int.MaxValue);
+
             }
         }
-        if (settings.normalizeMode == NormalizeMode.Local)
-        {
-            for (int y = 0; y < mapHeight; y++)
-            {
-                for (int x = 0; x < mapWidth; x++)
-                {
-                    noiseMap[x, y] = Mathf.InverseLerp(minLocalNoiseHeight, maxLocalNoiseHeight, noiseMap[x, y]);
-                    
-                }
-            }
-        }
+        
         return noiseMap;
     }
 }
+
+// Settings and data for the noise map
 [System.Serializable]
 public class NoiseSettings
 {
-    public Noise.NormalizeMode normalizeMode;
-
     public float scale = 50;
 
+    [Range(2,8)]
     public int octaves = 6;
     [Range(0, 1)]
     public float persistance = 0.6f;
@@ -103,6 +89,7 @@ public class NoiseSettings
     public int seed;
     public Vector2 offset;
 
+    // Checks and validates the values
     public void ValidateValues()
     {
         scale = Mathf.Max(scale, 0.01f);

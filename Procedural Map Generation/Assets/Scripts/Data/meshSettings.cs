@@ -5,6 +5,8 @@ using UnityEngine;
 [CreateAssetMenu]
 public class meshSettings : updatableData
 {
+    // The const and static variables of supported chunk and terrain data
+    
     public const int numSupportLODs = 5;
     public const int numSupportedChunkSizes = 9;
     public const int numSupportedFlatShadedChunkSizes = 3;
@@ -13,6 +15,7 @@ public class meshSettings : updatableData
     public float meshScale = 2.5f;
     public bool useFlatShading;
 
+    // Ranges for the chunk size indexs
     [Range(0, numSupportedChunkSizes - 1)]
     public int chunkSizeIndex;
     [Range(0, numSupportedFlatShadedChunkSizes - 1)]
@@ -26,10 +29,12 @@ public class meshSettings : updatableData
     {
         get
         {
-            return supportedChunkSizes[(useFlatShading) ? flatShadedChunkSizeIndex : chunkSizeIndex] - 1;
+            // number of vertices per line is equal to the supported chunk size indexes, depending if we're using flat shading or not, plus 5
+            return supportedChunkSizes[(useFlatShading) ? flatShadedChunkSizeIndex : chunkSizeIndex] + 5;
         }
     }
 
+    // Mesh world size is calculated by the num of vertices per line - 3 multiplied by the scale of the mesh
     public float meshWorldSize
     {
         get { return (numVertsPerLine - 3) * meshScale; }

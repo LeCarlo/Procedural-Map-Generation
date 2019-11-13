@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class TerrainChunk
 {
-    const float colliderGenerationDistanceThreshold = 5;
-    const float viewerMoveThresholdForChunkUpdate = 25f;
+    const float colliderGenerationDistanceThreshold = 15;
     public event System.Action<TerrainChunk, bool> onVisibilityChanged;
 
     public Vector2 coord;
@@ -35,6 +34,7 @@ public class TerrainChunk
 
     public TerrainChunk(Vector2 coord, HeightMapSettings heightMapSettings, meshSettings meshSettings, LODInfo[] detailLevels, int colliderLODIndex, Transform parent, Transform viewer, Material material)
     {
+        
         this.coord = coord;
         this.detailLevels = detailLevels;
         this.colliderLODIndex = colliderLODIndex;
@@ -43,7 +43,7 @@ public class TerrainChunk
         this.viewer = viewer;
 
         sampleCentre = coord * meshSettings.meshWorldSize / meshSettings.meshScale;
-        Vector3 position = coord * meshSettings.meshWorldSize;
+        Vector2 position = coord * meshSettings.meshWorldSize;
         bounds = new Bounds(position, Vector2.one * meshSettings.meshWorldSize);
 
         meshObject = new GameObject("Terrain Chunk");
@@ -78,16 +78,19 @@ public class TerrainChunk
 
     }
 
-    void OnHeightMapRecieved(object mapData)
+    void OnHeightMapRecieved(object heightMapObject)
     {
-        this.heightMap = (HeightMap)mapData;
+        this.heightMap = (HeightMap)heightMapObject;
         heightMapReceived = true;
         UpdateTerrainChunk();
     }
 
     Vector2 viewerPosition
     {
-        get { return new Vector2(viewer.position.x, viewer.position.z); }
+        get
+        {
+            return new Vector2(viewer.position.x, viewer.position.z);
+        }
     }
 
     public void UpdateTerrainChunk()

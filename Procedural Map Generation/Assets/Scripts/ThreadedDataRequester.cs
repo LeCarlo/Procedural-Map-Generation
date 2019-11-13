@@ -6,15 +6,20 @@ using System;
 
 public class ThreadedDataRequester : MonoBehaviour
 {
+    // sets the thread data to be instance
     static ThreadedDataRequester instance;
+
+    // creates a new dataQueue
     Queue<ThreadInfo> dataQueue = new Queue<ThreadInfo>();
 
 
     private void Awake()
     {
+        // on awake, sets the instance to be the object of threaded data requester
         instance = FindObjectOfType<ThreadedDataRequester>();
     }
 
+    // Starts a new thread when requesting data
     public static void RequestData(Func<object> generateData, Action<object> callback)
     {
         ThreadStart threadStart = delegate { instance.DataThread(generateData, callback); };
@@ -22,6 +27,7 @@ public class ThreadedDataRequester : MonoBehaviour
         new Thread(threadStart).Start();
     }
 
+    // enques the data from the thread into the thread info queue
     void DataThread(Func<object> generateData, Action<object> callback)
     {
         object data = generateData();
@@ -30,9 +36,8 @@ public class ThreadedDataRequester : MonoBehaviour
             dataQueue.Enqueue(new ThreadInfo(callback, data));
         }
     }
-
-   
-
+    
+    // deqees the data and calls back the info
     private void Update()
     {
         if (dataQueue.Count > 0)
