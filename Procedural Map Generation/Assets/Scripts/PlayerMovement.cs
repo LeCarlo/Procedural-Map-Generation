@@ -13,12 +13,18 @@ public class PlayerMovement : MonoBehaviour
     public bool hasJumped;
     public int jumpHeight;
     public bool isGrounded;
+    public bool gotOldSpeed;
+    public bool isInAir;
+    public bool hasChangedHeight;
+    Vector3 oldPosition;
     
     void Start()
     {
+        oldPosition = transform.position;
         rb = GetComponent<Rigidbody>();
         isGrounded = true;
         hasJumped = false;
+        gotOldSpeed = false;
         oldSpeed = speed;
     }
     private void FixedUpdate()
@@ -56,12 +62,41 @@ public class PlayerMovement : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            oldSpeed = speed;
+            if (!gotOldSpeed)
+            {
+                oldSpeed = speed;
+                gotOldSpeed = true;
+            }
             speed = ShiftSpeed;
         }
         else
         {
             speed = oldSpeed;
+            gotOldSpeed = false;
+        }
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            
+            if (isInAir)
+            {
+                rb.constraints = RigidbodyConstraints.None;
+                rb.constraints = RigidbodyConstraints.FreezeRotation;
+                Vector3 newPosition = transform.position;
+                newPosition.y -= 50;
+               
+                isInAir = false;
+                return;
+                
+            }
+            if (!isInAir)
+            {
+                Vector3 newPosition = transform.position;
+                newPosition.y += 50;
+                transform.position = newPosition;
+                rb.constraints = RigidbodyConstraints.FreezePositionY;
+                isInAir = true;
+                return;
+            }
         }
     }
     private void OnCollisionEnter(Collision other)

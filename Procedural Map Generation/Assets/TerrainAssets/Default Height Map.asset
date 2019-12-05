@@ -16,9 +16,9 @@ MonoBehaviour:
   noiseSettings:
     scale: 100
     octaves: 6
-    persistance: 0.456
+    persistance: 0.5
     lacunarity: 2
-    seed: 138
+    seed: 141
     offset: {x: 0, y: 0}
   heightMultiplier: 50
   heightCurve:
